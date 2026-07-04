@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Relational Database for Users, Menus, and Mock Transactions
+  postgres:
+    image: postgres:16-alpine
+    container_name: brewai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-brewadmin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-brewadmin_pass}
+      POSTGRES_DB: ${DB_NAME:-brewai_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-brewadmin} -d ${DB_NAME:-brewai_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Vector Database for strict RAG Menu Knowledge Bases
+  qdrant:
+    image: qdrant/qdrant:v1.9.0
+    container_name: brewai-qdrant
+    restart: unless-stopped
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Zero-Cost Local AI Model Workspace
+  ollama:
+    image: ollama/ollama:latest
+    container_name: brewai-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+volumes:
+  postgres_data:
+    driver: local
+  qdrant_data:
+    driver: local
+  ollama_data:
+    driver: local
