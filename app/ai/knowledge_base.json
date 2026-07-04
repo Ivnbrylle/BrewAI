@@ -1,0 +1,35 @@
+{
+  "menu_metadata": [
+    {
+      "id": 1,
+      "name": "Espresso",
+      "description": "A concentrated, bold shot of pure coffee extracted under high pressure.",
+      "allergens": [],
+      "ingredients": ["100% Arabica Coffee Beans", "Filtered Water"]
+    },
+    {
+      "id": 2,
+      "name": "Caramel Macchiato",
+      "description": "Freshly steamed milk with vanilla-flavored syrup, marked with espresso and topped with a decadent caramel drizzle.",
+      "allergens": ["dairy"],
+      "ingredients": ["Espresso", "Steamed Whole Milk", "Vanilla Syrup", "Caramel Sauce"]
+    },
+    {
+      "id": 3,
+      "name": "Oat Milk Cold Brew",
+      "description": "Our signature slow-steeped cold brew coffee balanced smoothly with rich, creamy oat milk.",
+      "allergens": [],
+      "ingredients": ["Slow-Steeped Coffee Beans", "Filtered Water", "Barista Blend Oat Milk"]
+    }
+  ],
+  "faq": [
+    {
+      "question": "What are your operating hours?",
+      "answer": "We are open daily from 6:00 AM to 8:00 PM."
+    },
+    {
+      "question": "Can I modify my drink order after confirming it?",
+      "answer": "Once an order status shifts to CONFIRMED, the order is instantly sent to the kitchen terminal for preparation and cannot be altered."
+    }
+  ]
+}
