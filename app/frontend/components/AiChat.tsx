@@ -1,79 +1,145 @@
-'use client';
-import React, { useState } from 'react';
+"use client";
 
-interface Message {
-  sender: 'user' | 'ai';
-  text: string;
-}
+import { useState } from 'react';
 
 export default function AiChat() {
-  const [messages, setMessages] = useState<Message[]>([
-    { sender: 'ai', text: 'Hello! I am your BrewAI assistant. I can answer ingredient questions or take your order. What can I get started for you?' }
-  ]);
-  const [input, setInput] = useState('');
-  const [activeOrderId, setActiveOrderId] = useState<number | null>(null);
-
-  const handleSendMessage = async () => {
-    if (!input.trim()) return;
-
-    const userMsg = input;
-    setMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
-    setInput('');
-
-    try {
-      // 1. Send text context over to our backend intent processor
-      const response = await fetch('http://localhost:8000/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ special_instructions: `AI Chat Request: ${userMsg}` })
-      });
-      
-      const data = await response.json();
-      
-      // Simulating standard transaction pipeline routing matching agent.py intent predictions
-      if (userMsg.toLowerCase().includes('confirm') || userMsg.toLowerCase().includes('checkout')) {
-        setMessages(prev => [...prev, { sender: 'ai', text: 'Processing your mock checkout... Success! Your order is route to the kitchen terminal. You can pay at the counter.' }]);
-      } else {
-        setMessages(prev => [...prev, { sender: 'ai', text: `I've registered your order intent! I created basket #${data.id || 1}. Would you like me to confirm this order for you?` }]);
-      }
-    } catch (error) {
-      setMessages(prev => [...prev, { sender: 'ai', text: 'I recorded your request locally! (Connect my backend service endpoints to view live database state transitions)' }]);
-    }
-  };
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div style={{
-      position: 'fixed', bottom: '30px', right: '30px', width: '350px', height: '450px',
-      backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #ebdcd0',
-      boxShadow: '0 8px 24px rgba(44,29,17,0.12)', display: 'flex', flexDirection: 'column', overflow: 'hidden'
+    <aside style={{
+      position: 'fixed',
+      right: '20px',
+      bottom: '20px',
+      zIndex: 30,
+      width: 'min(380px, calc(100vw - 40px))'
     }}>
-      <div style={{ backgroundColor: '#2c1d11', color: '#ffffff', padding: '15px', fontWeight: 'bold' }}>
-        🤖 BrewAI Conversational Assistant
-      </div>
-      <div style={{ flex: 1, padding: '15px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {messages.map((msg, i) => (
-          <div key={i} style={{
-            alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-            backgroundColor: msg.sender === 'user' ? '#8e7355' : '#f3ede6',
-            color: msg.sender === 'user' ? '#ffffff' : '#38322e',
-            padding: '10px 14px', borderRadius: '8px', maxWidth: '80%', fontSize: '14px'
+      {isOpen ? (
+        <div style={{
+          borderRadius: '26px',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(247,239,230,0.98) 100%)',
+          border: '1px solid rgba(141, 108, 79, 0.18)',
+          boxShadow: '0 24px 60px rgba(77, 46, 27, 0.24)',
+          overflow: 'hidden',
+          backdropFilter: 'blur(14px)'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '16px 18px',
+            background: 'linear-gradient(135deg, #6f3f1f 0%, #a56b3f 100%)',
+            color: '#fff'
           }}>
-            {msg.text}
+            <div>
+              <div style={{ fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.84 }}>AI Barista</div>
+              <div style={{ fontSize: '18px', fontWeight: 800 }}>Ask BrewAI</div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                border: 'none',
+                display: 'grid',
+                placeItems: 'center',
+                backgroundColor: 'rgba(255,255,255,0.18)',
+                color: '#fff',
+                fontSize: '18px',
+                cursor: 'pointer'
+              }}
+              aria-label="Close chat"
+            >
+              ×
+            </button>
           </div>
-        ))}
-      </div>
-      <div style={{ display: 'flex', borderTop: '1px solid #ebdcd0', padding: '10px' }}>
-        <input 
-          value={input} 
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
-          placeholder="Ask a question or place an order..." 
-          style={{ flex: 1, padding: '8px', border: '1px solid #ebdcd0', borderRadius: '6px', outline: 'none' }}
-        />
-        <button onClick={handleSendMessage} style={{ marginLeft: '8px', backgroundColor: '#2c1d11', color: '#ffffff', border: 'none', padding: '8px 12px', borderRadius: '6px', cursor: 'pointer' }}>
-          Send
+
+          <div style={{ padding: '16px 18px 18px' }}>
+            <div style={{
+              padding: '14px 16px',
+              borderRadius: '18px',
+              backgroundColor: '#fff',
+              border: '1px solid rgba(141, 108, 79, 0.16)',
+              boxShadow: '0 10px 24px rgba(77, 46, 27, 0.06)'
+            }}>
+              <p style={{ margin: '0 0 10px', color: '#6e5747', lineHeight: 1.6 }}>
+                Hello. I can help you choose a drink, explain the menu, or track an order.
+              </p>
+
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                {['Best seller', 'Low caffeine', 'Oat milk'].map((item) => (
+                  <span key={item} style={{ padding: '8px 10px', borderRadius: '999px', backgroundColor: '#f2e5d7', color: '#7b5433', fontSize: '12px', fontWeight: 700 }}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+
+              <div style={{ display: 'grid', gap: '10px' }}>
+                <div style={{ padding: '10px 12px', borderRadius: '14px', backgroundColor: '#f7f1ea', color: '#473326' }}>
+                  What should I get if I like sweet espresso drinks?
+                </div>
+                <div style={{ padding: '10px 12px', borderRadius: '14px', backgroundColor: '#6f3f1f', color: '#fff', marginLeft: 'auto', maxWidth: '85%' }}>
+                  Try the Honey Almond Latte or the Caramel Macchiato.
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', marginTop: '14px' }}>
+                <input
+                  type="text"
+                  placeholder="Ask the AI barista..."
+                  style={{
+                    flex: 1,
+                    border: '1px solid rgba(141, 108, 79, 0.22)',
+                    borderRadius: '999px',
+                    padding: '12px 14px',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  type="button"
+                  style={{
+                    border: 'none',
+                    borderRadius: '999px',
+                    padding: '0 16px',
+                    background: 'linear-gradient(135deg, #6f3f1f 0%, #9b6237 100%)',
+                    color: '#fff',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          style={{
+            marginLeft: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '14px 18px',
+            border: 'none',
+            borderRadius: '999px',
+            background: 'linear-gradient(135deg, #6f3f1f 0%, #a56b3f 100%)',
+            color: '#fff',
+            boxShadow: '0 18px 36px rgba(77, 46, 27, 0.28)',
+            cursor: 'pointer',
+            fontWeight: 800
+          }}
+          aria-label="Open chat"
+        >
+          <span style={{ width: '34px', height: '34px', borderRadius: '50%', display: 'grid', placeItems: 'center', backgroundColor: 'rgba(255,255,255,0.18)' }}>✦</span>
+          Chat with BrewAI
         </button>
-      </div>
-    </div>
+      )}
+    </aside>
   );
 }
